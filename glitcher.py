@@ -4,29 +4,6 @@ import random
 import re
 import sys
 
-# Give this program a .JPG image and some parameters, and it'll "glitch" the image's pixel values
-# by converting it to hex, doing some replacements, then converting it back to binary. It's a shame
-# that converting between formats isn't lossy! But, oh well.
-
-if len(sys.argv) == 2 and sys.argv[1] == "--help":
-    print("This program takes up to three arguments. The first two are required.\n\nFirst: the path to the source image.\nSecond: the path for the output image. Unless you want the source destroyed, make sure these are different--the program won't stop you.\n\nOptionally, include an integer to determine how many times the program runs through its processes. The higher the number, the more destroyed the image. The default is 25.")
-    quit()
-
-# Get the base image.
-img_file = sys.argv[1]
-
-# Name the output.
-output_name = sys.argv[2]
-
-# The following values are optional.
-# Get the number of mutations to make.
-try:
-    mutations = int(sys.argv[3])
-except:
-    mutations = 25
-
-# TODO: What other arguments can there be?
-
 # Set up the constants.
 VALUES = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f",
           "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1a", "1b", "1c", "1d", "1e", "1f",
@@ -81,4 +58,27 @@ def glitch(input, output, passes):
     new_img.save(output)
 
 if __name__ == "__main__":
+    # Give this program a .JPG image and some parameters, and it'll "glitch" the image's pixel values
+    # by converting it to hex, doing some replacements, then converting it back to binary. It's a shame
+    # that converting between formats isn't lossy! But, oh well.
+    
+    if len(sys.argv) == 2 and sys.argv[1] == "--help":
+        print("This program takes up to three arguments. The first two are required.\n\nFirst: the path to the source image.\nSecond: the path for the output image. Unless you want the source destroyed, make sure these are different--the program won't stop you.\n\nOptionally, include an integer to determine how many times the program runs through its processes. The higher the number, the more destroyed the image. The default is 25.")
+        quit()
+    
+    # Get the base image.
+    img_file = sys.argv[1]
+    
+    # Name the output.
+    output_name = sys.argv[2]
+    
+    # The following values are optional.
+    # Get the number of mutations to make.
+    try:
+        mutations = int(sys.argv[3])
+    except:
+        mutations = 25
+    
+    # TODO: What other arguments can there be?
+    
     glitch(img_file, output_name, mutations)
