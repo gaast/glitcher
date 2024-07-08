@@ -54,7 +54,7 @@ def glitch(input, output, passes):
         h = img.height
         hex_data = binascii.hexlify(img_bytes).decode()
 
-        modified_data = ""
+    modified_data = ""
 
     # Start the processing loop.
     for i in range(passes):
