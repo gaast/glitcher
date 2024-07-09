@@ -1,22 +1,25 @@
 # glitcher
 Manipulates images to give them a pseudo-glitch effect. In a really unnecessary, dumb way.
 
+In actuality, it's just changing individual pixels' values a certain number of times. It selects each value randomly, then replaces them with a random, different value (hopefully!). Like pixels remain alike through all permutations. This effect is probably more noticeable in images with higher resolutions.
+
 Ensure that you have Pillow installed! If you can `import PIL` without getting an error, you're good. If you do get an error, use `pip install Pillow`.
 
 Get started by accessing the script's location in your terminal, then enter the following command:
 
 ```
-glitcher.py image_location output_location passes
+glitcher.py image_location output_location passes max_replacements
 ```
 
 - `image_location` is a path to the source image, the image you want to glitch.
 - `output_location` is a path to the output image. This is where you'll name the output, so be sure to specify the file extension.
 - `passes` is an optional argument. This tells the program how many times you want it to process the image, with the image getting more ruined the higher the number you specify. If you don't include an integer here, `glitcher.py` uses `25`.
+- `max_replacements` is an optional argument. This tells the program how many times you want each replacement to occur per pass. By default, this value is `0`, meaning that it will replace every pixel with the new value each pass. The higher your image's resolution, the higher this number will have to be before you'll notice a difference. Of course, because pixels are replaced from the top-left, across to the top-right, then down to the next row of pixels at the left, you'll be leaving portions of the image untouched this way. Maybe that's what you want!
 
 So, for example:
 
 ```
-glitcher.py C:\Users\User\Desktop\source.jpg C:\Users\User\Desktop\glitched_image.jpg 50
+glitcher.py C:\Users\User\Desktop\source.jpg C:\Users\User\Desktop\glitched_image.jpg 50 100
 ```
 
 `glitcher.py` is unhelpful, and it won't tell you if you're going to try to replace a file that already exists. If you do something wrong, you'll get a Python error. It doesn't even set an upper limit on the number of passes. Go wild.

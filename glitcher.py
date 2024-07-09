@@ -22,7 +22,7 @@ VALUES = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b"
           "e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef",
           "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff"]
 
-def glitch(input, output, passes):
+def glitch(input, output, passes, max_replacements):
     # Get the image data.
     with Image.open(input) as img:
         img_bytes = img.tobytes()
@@ -46,9 +46,9 @@ def glitch(input, output, passes):
 
         # Modify the data.
         if modified_data == "":
-            modified_data = re.sub(r, repl, hex_data)
+            modified_data = re.sub(r, repl, hex_data, max_replacements)
         else:
-            modified_data = re.sub(r, repl, modified_data)
+            modified_data = re.sub(r, repl, modified_data, max_replacements)
 
     # Convert the hex back to binary, then save the image.
     converted_data = binascii.unhexlify(modified_data)
@@ -78,7 +78,13 @@ if __name__ == "__main__":
         mutations = int(sys.argv[3])
     except:
         mutations = 25
+
+    # Get the number of times to make each replacement.
+    try:
+        replacements = int(sys.argv[4])
+    except:
+        replacements = 0
     
     # TODO: What other arguments can there be?
     
-    glitch(img_file, output_name, mutations)
+    glitch(img_file, output_name, mutations, replacements)
