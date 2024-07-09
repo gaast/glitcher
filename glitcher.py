@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # that converting between formats isn't lossy! But, oh well.
     
     if len(sys.argv) == 2 and sys.argv[1] == "--help":
-        print("This program takes up to three arguments. The first two are required.\n\nFirst: the path to the source image.\nSecond: the path for the output image. Unless you want the source destroyed, make sure these are different--the program won't stop you.\n\nOptionally, include an integer to determine how many times the program runs through its processes. The higher the number, the more destroyed the image. The default is 25.")
+        print("This program takes up to four arguments. The first two are required.\n\nFirst: the path to the source image.\nSecond: the path for the output image. Unless you want the source destroyed, make sure these are different--the program won't stop you.\n\nOptionally, include an integer to determine how many times the program runs through its processes. The higher the number, the more destroyed the image. The default is 25.\nYou can also specify the maximum number of replacements that occur each pass. The default is 0.")
         quit()
     
     # Get the base image.
