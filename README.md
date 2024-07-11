@@ -3,23 +3,25 @@ Manipulates images to give them a pseudo-glitch effect. In a really unnecessary,
 
 In actuality, it's just changing individual pixels' values a certain number of times. It selects each value randomly, then replaces them with a random, different value (hopefully!). Like pixels remain alike through all permutations. This effect is probably more noticeable in images with higher resolutions.
 
-Ensure that you have Pillow installed! If you can `import PIL` without getting an error, you're good. If you do get an error, use `pip install Pillow`.
+Ensure that you have Pillow installed! If you can `import PIL` without getting an error, you're good. If you do get an error, use `pip install Pillow`. You'll also need `pyvips`.
 
-Get started by accessing the script's location in your terminal, then enter the following command:
+Get started by accessing the script's location in your terminal, then enter a command with the following arguments:
 
 ```
-glitcher.py image_location output_location passes max_replacements
+glitcher.py image_location output_filename -o output_destination -m mutations -r replacements_per_pass -f frames
 ```
 
 - `image_location` is a path to the source image, the image you want to glitch.
-- `output_location` is a path to the output image. This is where you'll name the output, so be sure to specify the file extension.
-- `passes` is an optional argument. This tells the program how many times you want it to process the image, with the image getting more ruined the higher the number you specify. If you don't include an integer here, `glitcher.py` uses `25`.
-- `max_replacements` is an optional argument. This tells the program how many times you want each replacement to occur per pass. By default, this value is `0`, meaning that it will replace every pixel with the new value each pass. The higher your image's resolution, the higher this number will have to be before you'll notice a difference. Of course, because pixels are replaced from the top-left, across to the top-right, then down to the next row of pixels at the left, you'll be leaving portions of the image untouched this way. Maybe that's what you want!
+- `output_filename` is the name you want to save the new image as. Be sure to include the file extension!
+- `-o` signifies the path to the directory where you want to save the new image. This argument is optional. If you don't include it, `glitcher.py` uses the current working directory, that is, the directory `glitcher.py` is in.
+- `-m` signifies how many times you want to mutate the image--that is, how many times you want `glitcher.py` to alter the base image. The higher the number, the more destroyed the image becomes. This is an optional argument; the default value is `25`.
+- `-r` signifies how many pixels you want to replace each time the program mutates the image. By default, this value is `0`, meaning that it will replace every pixel with the new value each pass. The higher your image's resolution, the higher this number will have to be before you'll notice a difference. Of course, because pixels are replaced from the top-left, across to the top-right, then down to the next row of pixels at the left, you'll be leaving portions of the image untouched this way. Maybe that's what you want!
+- `-f` signifies how many frames you want to include in an animated .GIF file made from the altered source image. This argument is optional and by default is `1`; in this case, `glitcher.py` doesn't make a .GIF file. Currently, the program saves every image file created as part of this process
 
 So, for example:
 
 ```
-glitcher.py C:\Users\User\Desktop\source.jpg C:\Users\User\Desktop\glitched_image.jpg 50 100
+glitcher.py C:\Users\User\Desktop\source.jpg transformed.jpg -o C:\Users\User\Desktop\ -m 50 -r 100
 ```
 
 `glitcher.py` is unhelpful, and it won't tell you if you're going to try to replace a file that already exists. If you do something wrong, you'll get a Python error. It doesn't even set an upper limit on the number of passes. Go wild.
@@ -27,6 +29,8 @@ glitcher.py C:\Users\User\Desktop\source.jpg C:\Users\User\Desktop\glitched_imag
 ## Dependencies
 
 `glitcher.py` relies on Pillow. Again, use `pip install Pillow` to add it to your system.
+
+You'll also need `pyvips`, so you'll need `libvips`. It's beyond the scope of this README to tell you how to get that set up, so be sure to check the respective tools' documentation.
 
 ## Acquisition
 
