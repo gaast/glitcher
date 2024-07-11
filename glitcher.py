@@ -1,8 +1,10 @@
+import argparse
 import binascii
+import os
 from PIL import Image
+import pyvips
 import random
 import re
-import sys
 
 # Set up the constants.
 VALUES = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f",
@@ -22,7 +24,7 @@ VALUES = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b"
           "e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef",
           "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff"]
 
-def glitch(input, output, passes, max_replacements):
+def glitch(input, output, dest, passes, max_replacements, frames):
     # Get the image data.
     with Image.open(input) as img:
         img_bytes = img.tobytes()
@@ -31,60 +33,75 @@ def glitch(input, output, passes, max_replacements):
         h = img.height
         hex_data = binascii.hexlify(img_bytes).decode()
 
-    modified_data = ""
+    images = []
 
     # Start the processing loop.
-    for i in range(passes):
-        # Get the regex and the replacement.
-        r = f"{random.choice(VALUES)}"
-        repl = random.choice(VALUES)
-        
-        # If the replacement is the same as the pattern, reroll the replacement. If they're the same again,
-        # well, who cares. Because, like. Damn.
-        if r == repl:
+    for frame in range(frames):
+        modified_data = ""
+        for i in range(passes):
+            # Get the regex and the replacement.
+            r = f"{random.choice(VALUES)}"
             repl = random.choice(VALUES)
+            
+            # If the replacement is the same as the pattern, reroll the replacement. If they're the same again,
+            # well, who cares. Because, like. Damn.
+            if r == repl:
+                repl = random.choice(VALUES)
 
-        # Modify the data.
-        if modified_data == "":
-            modified_data = re.sub(r, repl, hex_data, max_replacements)
+            # Modify the data.
+            if modified_data == "":
+                modified_data = re.sub(r, repl, hex_data, max_replacements)
+            else:
+                modified_data = re.sub(r, repl, modified_data, max_replacements)
+
+        # Convert the hex back to binary, then save the image.
+        converted_data = binascii.unhexlify(modified_data)
+
+        new_img = Image.frombytes("RGB", (w, h), converted_data)
+
+        if frames == 1:
+            new_img.save(os.path.join(dest, output))
         else:
-            modified_data = re.sub(r, repl, modified_data, max_replacements)
+            name = output.split(".")[0]
+            ext = output.split(".")[1]
+            new_img.save(os.path.join(dest, name + str(frame) + "." + ext))
+            images.append(new_img)
 
-    # Convert the hex back to binary, then save the image.
-    converted_data = binascii.unhexlify(modified_data)
+    images = [pyvips.Image.new_from_file(os.path.join(dest, name + str(i) + "." + ext)) for i in range(len(images))]
 
-    new_img = Image.frombytes("RGB", (w, h), converted_data)
+    if frames > 1:
+        roll = pyvips.Image.arrayjoin(images, across=1)
 
-    new_img.save(output)
+        roll = roll.copy()
+        roll.set_type(pyvips.GValue.array_int_type, "delay", [99] * len(images))
+        roll.set_type(pyvips.GValue.gint_type, "page-height", images[0].height)
+
+        roll.write_to_file(os.path.join(dest, name + ".gif"))
 
 if __name__ == "__main__":
     # Give this program a .JPG image and some parameters, and it'll "glitch" the image's pixel values
     # by converting it to hex, doing some replacements, then converting it back to binary. It's a shame
     # that converting between formats isn't lossy! But, oh well.
-    
-    if len(sys.argv) == 2 and sys.argv[1] == "--help":
-        print("This program takes up to four arguments. The first two are required.\n\nFirst: the path to the source image.\nSecond: the path for the output image. Unless you want the source destroyed, make sure these are different--the program won't stop you.\n\nOptionally, include an integer to determine how many times the program runs through its processes. The higher the number, the more destroyed the image. The default is 25.\nYou can also specify the maximum number of replacements that occur each pass. The default is 0.")
-        quit()
-    
-    # Get the base image.
-    img_file = sys.argv[1]
-    
-    # Name the output.
-    output_name = sys.argv[2]
-    
-    # The following values are optional.
-    # Get the number of mutations to make.
-    try:
-        mutations = int(sys.argv[3])
-    except:
-        mutations = 25
 
-    # Get the number of times to make each replacement.
+    args = None
+
+    parser = argparse.ArgumentParser(description="A program to add pseudoglitch effects to images.")
+    parser.add_argument("filename", help="The source file's path.", nargs=1)
+    parser.add_argument("output_filename", help="The base name for the output file.", nargs=1)
+    parser.add_argument("-o", "--output_dest", help="The output destination directory; if you don't include this, glitcher.py uses the current working directory.", nargs=1, default=os.getcwd())
+    parser.add_argument("-m", "--mutations", help="The number of times to edit pixel data per pass.", default=25, nargs=1, type=int)
+    parser.add_argument("-r", "--replacements", help="The number of pixel values to replace per mutation.", default=0, nargs=1, type=int)
+    parser.add_argument("-f", "--frames", help="The number of frames to include in GIF output. Include a number here to create a GIF; each frame is a new image generated.", default=1, nargs=1, type=int)
+    args = parser.parse_args()
+
+    img_file = args.filename[0].strip()
+    output_name = args.output_filename[0].strip()
+    output_dest = args.output_dest[0].strip()
+    mutations = args.mutations[0]
+    replacements = args.replacements[0]
     try:
-        replacements = int(sys.argv[4])
+        frames = args.frames[0]
     except:
-        replacements = 0
-    
-    # TODO: What other arguments can there be?
-    
-    glitch(img_file, output_name, mutations, replacements)
+        frames = args.frames
+
+    glitch(img_file, output_name, output_dest, mutations, replacements, frames)
