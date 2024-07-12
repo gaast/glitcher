@@ -94,7 +94,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="A program to add pseudoglitch effects to images.")
     parser.add_argument("filename", help="The source file's path.", nargs=1)
     parser.add_argument("output_filename", help="The base name for the output file.", nargs=1)
-    parser.add_argument("-o", "--output_dest", help="The output destination directory; if you don't include this, glitcher.py uses the current working directory.", nargs=1, default=os.getcwd())
+    parser.add_argument("output_destination", help="The output destination directory; if you don't include this, glitcher.py uses the current working directory.", nargs=1)
     parser.add_argument("-m", "--mutations", help="The number of times to edit pixel data per pass.", default=25, nargs=1, type=int)
     parser.add_argument("-r", "--replacements", help="The number of pixel values to replace per mutation.", default=0, nargs=1, type=int)
     parser.add_argument("-f", "--frames", help="The number of frames to include in GIF output. Include a number here to create a .GIF; each frame is a new image generated.", default=1, nargs=1, type=int)
@@ -103,7 +103,7 @@ if __name__ == "__main__":
 
     img_file = args.filename[0].strip()
     output_name = args.output_filename[0].strip()
-    output_dest = args.output_dest[0].strip()
+    output_dest = args.output_destination[0].strip()
     mutations = args.mutations[0]
     try:
         replacements = args.replacements[0]
