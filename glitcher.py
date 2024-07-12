@@ -24,7 +24,7 @@ VALUES = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b"
           "e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef",
           "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff"]
 
-def glitch(input, output, dest, passes, max_replacements, frames, delete=True):
+def glitch(input, output, dest, passes, max_replacements, frames, keep=False):
     # Get the image data.
     with Image.open(input) as img:
         img_bytes = img.tobytes()
@@ -34,11 +34,11 @@ def glitch(input, output, dest, passes, max_replacements, frames, delete=True):
         hex_data = binascii.hexlify(img_bytes).decode()
 
     images = []
+    frame_images = []
 
     # Start the processing loop.
     for frame in range(frames):
         modified_data = ""
-        frame_images = []
         for i in range(passes):
             # Get the regex and the replacement.
             r = f"{random.choice(VALUES)}"
@@ -80,7 +80,7 @@ def glitch(input, output, dest, passes, max_replacements, frames, delete=True):
 
         roll.write_to_file(os.path.join(dest, name + ".gif"))
 
-        if delete:
+        if not keep:
             for frame_image in frame_images:
                 os.remove(frame_image)
 
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--mutations", help="The number of times to edit pixel data per pass.", default=25, nargs=1, type=int)
     parser.add_argument("-r", "--replacements", help="The number of pixel values to replace per mutation.", default=0, nargs=1, type=int)
     parser.add_argument("-f", "--frames", help="The number of frames to include in GIF output. Include a number here to create a .GIF; each frame is a new image generated.", default=1, nargs=1, type=int)
-    parser.add_argument("-k", "--keep", help="Include this flag to keep all of the images used to make a .GIF.", action="store_false")
+    parser.add_argument("-k", "--keep", help="Include this flag to keep all of the images used to make a .GIF.", action="store_true")
     args = parser.parse_args()
 
     img_file = args.filename[0].strip()
@@ -113,7 +113,6 @@ if __name__ == "__main__":
         frames = args.frames[0]
     except:
         frames = args.frames
-    # This keeps the frames when it's FALSE. I know this is stupid.
     keep_frames = args.keep
 
     glitch(img_file, output_name, output_dest, mutations, replacements, frames, keep_frames)
