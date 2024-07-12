@@ -24,7 +24,7 @@ VALUES = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b"
           "e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef",
           "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff"]
 
-def glitch(input, output, dest, passes, max_replacements, frames):
+def glitch(input, output, dest, passes, max_replacements, frames, delete=True):
     # Get the image data.
     with Image.open(input) as img:
         img_bytes = img.tobytes()
@@ -38,6 +38,7 @@ def glitch(input, output, dest, passes, max_replacements, frames):
     # Start the processing loop.
     for frame in range(frames):
         modified_data = ""
+        frame_images = []
         for i in range(passes):
             # Get the regex and the replacement.
             r = f"{random.choice(VALUES)}"
@@ -65,6 +66,7 @@ def glitch(input, output, dest, passes, max_replacements, frames):
             name = output.split(".")[0]
             ext = output.split(".")[1]
             new_img.save(os.path.join(dest, name + str(frame) + "." + ext))
+            frame_images.append(os.path.join(dest, name + str(frame) + "." + ext))
             images.append(new_img)
 
     images = [pyvips.Image.new_from_file(os.path.join(dest, name + str(i) + "." + ext)) for i in range(len(images))]
@@ -77,6 +79,10 @@ def glitch(input, output, dest, passes, max_replacements, frames):
         roll.set_type(pyvips.GValue.gint_type, "page-height", images[0].height)
 
         roll.write_to_file(os.path.join(dest, name + ".gif"))
+
+        if delete:
+            for frame_image in frame_images:
+                os.remove(frame_image)
 
 if __name__ == "__main__":
     # Give this program a .JPG image and some parameters, and it'll "glitch" the image's pixel values
@@ -91,17 +97,23 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output_dest", help="The output destination directory; if you don't include this, glitcher.py uses the current working directory.", nargs=1, default=os.getcwd())
     parser.add_argument("-m", "--mutations", help="The number of times to edit pixel data per pass.", default=25, nargs=1, type=int)
     parser.add_argument("-r", "--replacements", help="The number of pixel values to replace per mutation.", default=0, nargs=1, type=int)
-    parser.add_argument("-f", "--frames", help="The number of frames to include in GIF output. Include a number here to create a GIF; each frame is a new image generated.", default=1, nargs=1, type=int)
+    parser.add_argument("-f", "--frames", help="The number of frames to include in GIF output. Include a number here to create a .GIF; each frame is a new image generated.", default=1, nargs=1, type=int)
+    parser.add_argument("-k", "--keep", help="Include this flag to keep all of the images used to make a .GIF.", action="store_false")
     args = parser.parse_args()
 
     img_file = args.filename[0].strip()
     output_name = args.output_filename[0].strip()
     output_dest = args.output_dest[0].strip()
     mutations = args.mutations[0]
-    replacements = args.replacements[0]
+    try:
+        replacements = args.replacements[0]
+    except:
+        replacements = args.replacements
     try:
         frames = args.frames[0]
     except:
         frames = args.frames
+    # This keeps the frames when it's FALSE. I know this is stupid.
+    keep_frames = args.keep
 
-    glitch(img_file, output_name, output_dest, mutations, replacements, frames)
+    glitch(img_file, output_name, output_dest, mutations, replacements, frames, keep_frames)

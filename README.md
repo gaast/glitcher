@@ -8,7 +8,7 @@ Ensure that you have Pillow installed! If you can `import PIL` without getting a
 Get started by accessing the script's location in your terminal, then enter a command with the following arguments:
 
 ```
-glitcher.py image_location output_filename -o output_destination -m mutations -r replacements_per_pass -f frames
+glitcher.py image_location output_filename -o output_destination -m mutations -r replacements_per_pass -f frames -k
 ```
 
 - `image_location` is a path to the source image, the image you want to glitch.
@@ -16,7 +16,8 @@ glitcher.py image_location output_filename -o output_destination -m mutations -r
 - `-o` signifies the path to the directory where you want to save the new image. This argument is optional. If you don't include it, `glitcher.py` uses the current working directory, that is, the directory `glitcher.py` is in.
 - `-m` signifies how many times you want to mutate the image--that is, how many times you want `glitcher.py` to alter the base image. The higher the number, the more destroyed the image becomes. This is an optional argument; the default value is `25`.
 - `-r` signifies how many pixels you want to replace each time the program mutates the image. By default, this value is `0`, meaning that it will replace every pixel with the new value each pass. The higher your image's resolution, the higher this number will have to be before you'll notice a difference. Of course, because pixels are replaced from the top-left, across to the top-right, then down to the next row of pixels at the left, you'll be leaving portions of the image untouched this way. Maybe that's what you want!
-- `-f` signifies how many frames you want to include in an animated .GIF file made from the altered source image. This argument is optional and by default is `1`; in this case, `glitcher.py` doesn't make a .GIF file. Currently, the program saves every image file created as part of this process
+- `-f` signifies how many frames you want to include in an animated .GIF file made from the altered source image. This argument is optional and by default is `1`; in this case, `glitcher.py` doesn't make a .GIF file.
+- `-k` signifies that you want to keep the individual pictures used to make an animated .GIF file. It doesn't take any arguments; just include `-k` and you'll keep the images.
 
 So, for example:
 
